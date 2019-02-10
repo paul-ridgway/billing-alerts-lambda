@@ -1,0 +1,6 @@
+{
+  "description": "E-Mail based alerts for AWS Billing changes",
+  "hooks":{
+    "build": "bundle install && bundle install --deployment"
+  }
+}
