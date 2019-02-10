@@ -699,12 +699,18 @@ GEM
     aws-sigv2 (1.0.1)
     aws-sigv4 (1.0.3)
     jmespath (1.4.0)
+    little-plugger (1.1.4)
+    logging (2.2.2)
+      little-plugger (~> 1.1)
+      multi_json (~> 1.10)
+    multi_json (1.13.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   aws-sdk (~> 3)
+  logging
 
 BUNDLED WITH
-   1.16.2
+   1.17.3

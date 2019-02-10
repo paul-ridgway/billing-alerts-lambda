@@ -1,6 +1,6 @@
 {
   "description": "E-Mail based alerts for AWS Billing changes",
   "hooks":{
-    "build": "bundle install && bundle install --deployment"
+    "build": "bundle install --jobs 8 && bundle install --jobs 8 --deployment"
   }
 }
