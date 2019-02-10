@@ -1,62 +1,60 @@
 require 'json'
 require 'aws-sdk'
+require 'logger'
 
-def send_email(event)
-    event = JSON.dump(event)
-    
-    sender = "aws-billing-alerts@ridgway.io"
-    recipient = "paul@ridgway.io"
-    subject = "Amazon SES test (AWS SDK for Ruby)"
-    htmlbody =
-      '<h1>Amazon SES test (AWS SDK for Ruby)</h1>'\
-      '<p>This email was sent with <a href="https://aws.amazon.com/ses/">'\
-      'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-ruby/">'\
-      'AWS SDK for Ruby</a>.<pre>' + event + '</pre>'
-    textbody = "This email was sent with Amazon SES using the AWS SDK for Ruby.\n#{event}"
-    
-    # Create a new SES resource and specify a region
-    ses = Aws::SES::Client.new(region: 'eu-west-1')
-    
-    # Try to send the email.
-    begin
-    
-      # Provide the contents of the email.
-      resp = ses.send_email({
-        destination: {
-          to_addresses: [
-            recipient,
-          ],
-        },
-        message: {
-          body: {
-            html: {
-              charset: "UTF-8",
-              data: htmlbody,
-            },
-            text: {
-              charset: "UTF-8",
-              data: textbody,
-            },
-          },
-          subject: {
-            charset: "UTF-8",
-            data: subject,
-          },
-        },
-      source: sender
-      })
-      puts "Email sent!"
-    
-    # If something goes wrong, display an error message.
-    rescue Aws::SES::Errors::ServiceError => error
-      puts "Email not sent. Error message: #{error}"
-    
-    end
+logger = Logger.new(STDOUT)
+logger.level = Logger::INFO
 
+def send_email(from:, to:, subject:, html:, text:)
+  ses = Aws::SES::Client.new(region: 'eu-west-1')
+
+  to = to.is_a?(Array) ? to : [to]
+  begin
+    options = {
+      destination: {
+        to_addresses: to
+      },
+      message: {
+        body: {
+          html: {
+            charset: 'UTF-8',
+            data: html
+          },
+          text: {
+            charset: 'UTF-8',
+            data: text
+          }
+        },
+        subject: {
+          charset: 'UTF-8',
+          data: subject
+        }
+      },
+      source: from
+    }
+    resp = ses.send_email(options)
+    logger.info('Email sent!')
+  rescue Aws::SES::Errors::ServiceError => error
+    logger.error("Email not sent. Error message: #{error}")
+    raise error
+  end
 end
 
-
 def handler(event:, context:)
-    send_email(event)
-    { statusCode: 200, body: JSON.generate('Hello from Lambda!') }
+  # The event payload will look something like this
+  # {
+  #   "version": "0",
+  #   "id": "47df9fb6-e2dc-b381-7201-2ff06e9579af",
+  #   "detail-type": "Scheduled Event",
+  #   "source": "aws.events",
+  #   "account": "181984840591",
+  #   "time": "2019-02-10T13:55:32Z",
+  #   "region": "eu-west-1",
+  #   "resources": ["arn:aws:events:eu-west-1:181984840591:rule/billing-alert"],
+  #   "detail": {}
+  # }
+
+  send_email(sender: 'billing-alerts@ridgway.io', recipient: 'paul@ridgway.io', subject: 'AWS Billing Alert', text: 'Some body', html: 'Some html')
+
+  {statusCode: 200, body: JSON.generate('Hello from Lambda!')}
 end
