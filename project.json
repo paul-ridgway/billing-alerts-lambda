@@ -1,7 +1,7 @@
 {
   "name": "billing-alerts",
   "description": "E-Mail based alerts for AWS Billing changes",
-  "memory": 128,
+  "memory": 256,
   "timeout": 5,
   "role": "arn:aws:iam::181984840591:role/billing-alerts_lambda_function",
   "environment": {},
