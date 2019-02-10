@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+cd functions/notify
+bundle exec ruby lambda.rb
