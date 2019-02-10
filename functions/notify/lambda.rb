@@ -3,6 +3,8 @@ require 'logger'
 require_relative 'log_helper'
 require_relative 'notify'
 
+$lambda = !!ENV['AWS_LAMBDA_FUNCTION_NAME']
+
 L = LogHelper::logger("lambda-#{SecureRandom.uuid[-6..-1]}")
 
 NOTIFY = Notify.new
@@ -28,10 +30,8 @@ def handler(event: , context: )
   {statusCode: 200, body: JSON.generate('Hello from Lambda!')}
 end
 
-Signal.trap(0, proc { puts "Terminating: #{$$}" })
-
 L.info "Checking environment"
-if ENV['AWS_LAMBDA_FUNCTION_NAME']
+if $lambda
   L.info "Running in lambda"
 else
   L.info "Not in lambda, running locally!"

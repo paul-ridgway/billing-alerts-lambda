@@ -18,7 +18,7 @@
         }
 
         body {
-            background-color: #f6f6f6;
+            background-color: #ffffff;
             font-family: sans-serif;
             -webkit-font-smoothing: antialiased;
             font-size: 14px;
@@ -47,7 +47,7 @@
         ------------------------------------- */
 
         .body {
-            background-color: #f6f6f6;
+            background-color: #ffffff;
             width: 100%;
         }
 
@@ -74,14 +74,16 @@
             HEADER, FOOTER, MAIN
         ------------------------------------- */
         .main {
-            background: #ffffff;
+            background: #f6f6f6;
             border-radius: 3px;
             width: 100%;
         }
 
         .wrapper {
             box-sizing: border-box;
-            padding: 20px;
+            padding: 10px;
+            border: 1px solid #dddddd;
+            border-radius: 2px;
         }
 
         .content-block {
@@ -354,23 +356,30 @@
             <div class="content">
 
                 <!-- START CENTERED WHITE CONTAINER -->
-                <span class="preheader">Balance as of $$CHECKED$$: $$BALANCE$$.</span>
+                <span class="preheader">Actual spend as of $$CHECKED$$: $$ACTUAL$$.</span>
                 <table role="presentation" class="main">
 
                     <!-- START MAIN CONTENT AREA -->
                     <tr>
                         <td class="wrapper">
-                            <table role="presentation" border="0" cellpadding="2" cellspacing="2">
+                            <table role="presentation" border="0" cellpadding="5" cellspacing="5">
                                 <tr>
-                                    <td colspan="2">
-                                        <h1>AWS Billing Alert</h1>
-                                        <hr />
+                                    <td colspan="2" style="background-color: #ffffaa; border-bottom: 2px solid #cccc00; font-size: 2.0em; padding: 5px; font-weight: bold;">
+                                        AWS Billing Alert
                                     </td>
+                                </tr>
+                                <tr><td style="padding: 5px;"></td></tr>
                                 <tr>
                                     <td style="width: 100px;">
-                                        <nobr><b>Current Balance: </b></nobr>
+                                        <nobr><b>Actual Spend: </b></nobr>
                                     </td>
-                                    <td>$$BALANCE$$</td>
+                                        <td>$$ACTUAL$$</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 100px;">
+                                        <nobr><b>Forecasted Spend: </b></nobr>
+                                    </td>
+                                        <td>$$FORECAST$$</td>
                                 </tr>
                                 <tr>
                                     <td><nobr><b>Checked At:</b></nobr></td>

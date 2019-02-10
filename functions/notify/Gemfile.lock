@@ -698,11 +698,16 @@ GEM
       aws-sigv4 (~> 1.0)
     aws-sigv2 (1.0.1)
     aws-sigv4 (1.0.3)
+    concurrent-ruby (1.1.4)
+    i18n (1.5.3)
+      concurrent-ruby (~> 1.0)
     jmespath (1.4.0)
     little-plugger (1.1.4)
     logging (2.2.2)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
+    money (6.13.2)
+      i18n (>= 0.6.4, <= 2)
     multi_json (1.13.1)
 
 PLATFORMS
@@ -711,6 +716,7 @@ PLATFORMS
 DEPENDENCIES
   aws-sdk (~> 3)
   logging
+  money
 
 BUNDLED WITH
    1.17.3
