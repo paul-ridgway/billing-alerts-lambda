@@ -1,3 +1,5 @@
 #!/bin/bash
+set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."
-apex -E config/production.json deploy
+cd functions/notify
+bundle $@
