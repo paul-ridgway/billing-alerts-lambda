@@ -1,0 +1,9 @@
+{
+    "ACCOUNT_ID": "181984840591",
+    "ACCOUNT_NAME": "Personal",
+    "BUDGET_NAME": "Monthly Budget",
+    "HISTORY_TABLE": "billing_history",
+    "MINIMUM_DELTA": "5",
+    "EMAIL_FROM": "billing-alerts@ridgway.io",
+    "EMAIL_TO": "paul@ridgway.io"
+}
