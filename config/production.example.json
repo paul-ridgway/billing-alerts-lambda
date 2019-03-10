@@ -1,4 +1,7 @@
 {
     "ACCOUNT_ID": "123456789012",
-    "BUDGET_NAME": "MyBudget"
+    "ACCOUNT_NAME": "Paul's Account",
+    "BUDGET_NAME": "MyBudget",
+    "HISTORY_TABLE": "some_table",
+    "MINIMUM_DELTA": "5"
 }

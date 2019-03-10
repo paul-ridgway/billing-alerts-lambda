@@ -26,8 +26,6 @@ def handler(event: , context: )
   # }
 
   NOTIFY.run
-
-  {statusCode: 200, body: JSON.generate('Hello from Lambda!')}
 end
 
 L.info "Checking environment"
