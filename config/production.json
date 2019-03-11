@@ -1,0 +1,9 @@
+{
+    "ACCOUNT_ID": "379782720734",
+    "ACCOUNT_NAME": "TCCS",
+    "BUDGET_NAME": "TCCS Budget",
+    "HISTORY_TABLE": "billing_history",
+    "MINIMUM_DELTA": "5",
+    "EMAIL_FROM": "billing-alerts@tccs.io",
+    "EMAIL_TO": "admin@tccs.io"
+}

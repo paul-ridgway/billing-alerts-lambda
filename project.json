@@ -2,8 +2,8 @@
   "name": "billing-alerts",
   "description": "E-Mail based alerts for AWS Billing changes",
   "memory": 128,
-  "timeout": 3,
-  "role": "arn:aws:iam::181984840591:role/billing-alerts_lambda_function",
+  "timeout": 5,
+  "role": "arn:aws:iam::379782720734:role/billing-alerts_lambda_function",
   "environment": {},
   "runtime": "ruby2.5",
   "handler": "lambda.handler"
