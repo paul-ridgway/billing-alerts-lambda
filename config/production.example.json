@@ -3,5 +3,7 @@
     "ACCOUNT_NAME": "Paul's Account",
     "BUDGET_NAME": "MyBudget",
     "HISTORY_TABLE": "some_table",
-    "MINIMUM_DELTA": "5"
+    "MINIMUM_DELTA": "5",
+    "EMAIL_FROM": "from@email.com",
+    "EMAIL_TO": "to@email.com"
 }
