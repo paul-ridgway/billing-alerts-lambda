@@ -1,0 +1,272 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EmailFromParameter:
+    Type: String
+    Description: The sending email (matching an SES domain)
+  EmailToParameter:
+    Type: String
+    Description: The recipient email for alerts
+  AccountIdParameter:
+    Type: Number
+    Description: The ID of the AWS account the budget is for (this one)
+  AccountNameParameter:
+    Type: String
+    Description: Used in notification emails to help distinguish between accounts
+  BudgetParameter:
+    Default: 100
+    Type: Number
+    Description: Specify your monthly AWS budget (USD)
+  BudgetNameParameter:
+    Default: Monthly Spend Budget
+    Type: String
+    Description: The budget name
+  BillingTableParameter:
+    Default: BA_billing_history
+    Type: String
+    Description: The table name for tracking billing data in DynamoDB
+  MinimumDeltaParameter:
+    Default: 5
+    Type: Number
+    Description: Minimum budget change required before sending an alert (USD)
+Description: E-Mail based alerts for AWS Billing changes
+Resources:
+  ViewBudgetPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: BA_ViewBudget
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: 'budgets:ViewBudget'
+            Resource: '*'
+            Effect: Allow
+            Sid: VisualEditor0
+      Roles:
+        - !Ref BillingAlertRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 3d6dee09-130c-4cd8-8c71-41aae4d88081
+  BillingAlertsNotifyLambdaSchedule1Permission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:invokeFunction'
+      Principal: events.amazonaws.com
+      FunctionName: !Ref BillingAlertsNotifyLambda
+      SourceArn: !GetAtt 
+        - BillingAlertsNotifyLambdaSchedule1
+        - Arn
+  BillingAlertsNotifyLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: 5052
+        S3Key: billing-alerts_notify.zip
+      Description: E-Mail based alerts for AWS Billing changes
+      Tags:
+        - Value: SAM
+          Key: 'lambda:createdBy'
+      ReservedConcurrentExecutions: 1
+      MemorySize: 128
+      Environment:
+        Variables:
+          BUDGET_NAME: !Ref BudgetNameParameter
+          ACCOUNT_ID: !Ref AccountIdParameter
+          ACCOUNT_NAME: !Ref AccountNameParameter
+          LAMBDA_FUNCTION_NAME: billing-alerts_notify
+          EMAIL_FROM: !Ref EmailFromParameter
+          MINIMUM_DELTA: !Ref MinimumDeltaParameter
+          EMAIL_TO: !Ref EmailToParameter
+          HISTORY_TABLE: !Ref BillingTableParameter
+          APEX_FUNCTION_NAME: notify
+      Handler: lambda.handler
+      Role: !GetAtt 
+        - BillingAlertRole
+        - Arn
+      Timeout: 3
+      Runtime: ruby2.5
+  BillingAlertsNotifyLambdaSchedule1:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      ScheduleExpression: cron(*/15 * * * ? *)
+      Targets:
+        - Id: BillingAlertsNotifyLambdaSchedule1LambdaTarget
+          Arn: !GetAtt 
+            - BillingAlertsNotifyLambda
+            - Arn
+  BillingHistoryTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      KeySchema:
+        - KeyType: HASH
+          AttributeName: month
+        - KeyType: RANGE
+          AttributeName: timestamp
+      TableName: !Ref BillingTableParameter
+      AttributeDefinitions:
+        - AttributeName: month
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: 'N'
+      BillingMode: PAY_PER_REQUEST
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 9e7c2504-6c60-49fd-83e5-5124b414dc28
+  BillingAlertRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: BA_BillingAlert
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 27321a1d-c542-4268-a63e-dc5c14dfb26e
+  CloudwatchLogsPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: BA_CloudwatchLogs
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 'logs:*'
+            Resource: '*'
+            Effect: Allow
+      Roles:
+        - !Ref BillingAlertRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 959ff044-bba3-446c-9add-7fab08d715b9
+  BillingHistoryPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: BA_BillingHistoryReadWrite
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 'dynamodb:PutItem'
+              - 'dynamodb:GetItem'
+              - 'dynamodb:Query'
+            Resource: !GetAtt 
+              - BillingHistoryTable
+              - Arn
+            Effect: Allow
+            Sid: VisualEditor0
+      Roles:
+        - !Ref BillingAlertRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: ee4296b4-43d8-48c9-a158-f5e76caccebd
+  SendEmailPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: BA_SendEmail
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 'ses:SendEmail'
+              - 'ses:SendTemplatedEmail'
+              - 'ses:SendRawEmail'
+            Resource: '*'
+            Effect: Allow
+            Sid: VisualEditor0
+      Roles:
+        - !Ref BillingAlertRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 6b9baf95-f235-4328-8a44-a752f26c557a
+  MonthlyBudget:
+    Type: 'AWS::Budgets::Budget'
+    Properties:
+      Budget:
+        BudgetType: COST
+        BudgetLimit:
+          Amount: !Ref BudgetParameter
+          Unit: USD
+        BudgetName: !Ref BudgetNameParameter
+        TimeUnit: MONTHLY
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 778b5766-a8aa-44ef-ac38-c49d47272f31
+Metadata:
+  'AWS::CloudFormation::Designer':
+    3d6dee09-130c-4cd8-8c71-41aae4d88081:
+      embeds: []
+      position:
+        'y': 180
+        x: 200
+      isassociatedwith:
+        - 27321a1d-c542-4268-a63e-dc5c14dfb26e
+      z: 1
+      size:
+        width: 60
+        height: 60
+    6b9baf95-f235-4328-8a44-a752f26c557a:
+      embeds: []
+      position:
+        'y': 150
+        x: 360
+      isassociatedwith:
+        - 27321a1d-c542-4268-a63e-dc5c14dfb26e
+      z: 1
+      size:
+        width: 60
+        height: 60
+    ee4296b4-43d8-48c9-a158-f5e76caccebd:
+      embeds: []
+      position:
+        'y': 170
+        x: 80
+      isassociatedwith:
+        - 27321a1d-c542-4268-a63e-dc5c14dfb26e
+      z: 1
+      size:
+        width: 60
+        height: 60
+    27321a1d-c542-4268-a63e-dc5c14dfb26e:
+      embeds: []
+      position:
+        'y': -30
+        x: 170
+      z: 1
+      size:
+        width: 60
+        height: 60
+      dependson:
+        - 3d6dee09-130c-4cd8-8c71-41aae4d88081
+        - 6b9baf95-f235-4328-8a44-a752f26c557a
+    778b5766-a8aa-44ef-ac38-c49d47272f31:
+      embeds: []
+      position:
+        'y': 230
+        x: -190
+      z: 1
+      size:
+        width: 60
+        height: 60
+    959ff044-bba3-446c-9add-7fab08d715b9:
+      embeds: []
+      position:
+        'y': 234.74976018667874
+        x: 373.5873204285151
+      isassociatedwith:
+        - 27321a1d-c542-4268-a63e-dc5c14dfb26e
+      z: 0
+      size:
+        width: 60
+        height: 60
+    9e7c2504-6c60-49fd-83e5-5124b414dc28:
+      embeds: []
+      position:
+        'y': 160
+        x: -40
+      z: 1
+      size:
+        width: 60
+        height: 60
