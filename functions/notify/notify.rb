@@ -39,6 +39,7 @@ class Notify
 
     spend = budget[:calculated_spend]
     actual_spend = spend[:actual_spend]
+    spend[:forecasted_spend] = {amount: -1} unless spend[:forecasted_spend]
 
     delta = actual_spend[:amount].to_f - previous_spend.to_f
 
@@ -49,13 +50,11 @@ class Notify
       return
     end
 
-    record_spend(spend)
-
     date = DateTime.now.strftime('%H:%M:%S')
     data = {
         subject: "#{$lambda ? '' : '[DEV] '}[#{@account_name}] AWS Billing Alert at #{date}",
         actual: to_currency(actual_spend),
-        forecast: to_currency(spend[:forecasted_spend]),
+        forecast: (spend[:forecasted_spend][:amount] <= 0) ? 'Unknown' : to_currency(spend[:forecasted_spend]),
         account: @account_name,
         checked: date}
 
@@ -64,6 +63,8 @@ class Notify
 
     self.send_email(from: @email_from, to: @email_to, subject: data[:subject],
                     text: text, html: html)
+
+    record_spend(spend)
 
     data
   end
