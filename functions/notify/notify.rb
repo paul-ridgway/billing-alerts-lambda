@@ -46,10 +46,9 @@ class Notify
 
     if (delta < @minimum_delta)
       L.info("Delta is less than minimum delta of #{@minimum_delta}, nothing to do")
+      record_spend(spend) if delta < 0
       return
     end
-
-    record_spend(spend)
 
     date = DateTime.now.strftime('%H:%M:%S')
     data = {
@@ -64,6 +63,8 @@ class Notify
 
     self.send_email(from: @email_from, to: @email_to, subject: data[:subject],
                     text: text, html: html)
+
+    record_spend(spend)
 
     data
   end
