@@ -29,3 +29,5 @@ Create SendEmail, SES:
 Find role created (billing-alerts_lambda_function) add above policies
 
 Create CloudWatch trigger.
+
+CloudFormation stack available at: https://billing-alerts-lambda.s3-eu-west-1.amazonaws.com/billing-alerts.yml
