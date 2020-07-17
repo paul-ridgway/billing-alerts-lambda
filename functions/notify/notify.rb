@@ -54,7 +54,7 @@ class Notify
     data = {
         subject: "#{$lambda ? '' : '[DEV] '}[#{@account_name}] AWS Billing Alert at #{date}",
         actual: to_currency(actual_spend),
-        forecast: to_currency(spend[:forecasted_spend]),
+        forecast: (spend[:forecasted_spend][:amount].to_f <= 0) ? 'Unknown' : to_currency(spend[:forecasted_spend]),
         account: @account_name,
         checked: date}
 
