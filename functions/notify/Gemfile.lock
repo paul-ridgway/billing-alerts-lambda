@@ -717,6 +717,3 @@ DEPENDENCIES
   aws-sdk (~> 3)
   logging
   money
-
-BUNDLED WITH
-   1.17.3
